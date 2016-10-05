@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:wd-connector="http://www.mulesoft.org/schema/mule/wd-connector"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:sap="http://www.mulesoft.org/schema/mule/sap" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" 
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wd-connector http://www.mulesoft.org/schema/mule/wd-connector/current/mule-wd-connector.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
+	<context:property-placeholder location="common.properties, mule.${mule.env}.properties" />
+    
+    <http:listener-config name="system-api-httpListenerConfig" host="0.0.0.0" port="${http.port}" doc:name="HTTP Listener Configuration"/>
+    <netsuite:config-login-authentication name="Netsuite" account="${nets.account}" email="${nets.email}" password="${nets.password}" roleId="${nets.roleId}" receiveTimeout="300000" applicationId="${nets.applicationId}" doc:name="NetSuite: Login Authentication"/>
+    
+    <wd-connector:config name="Workday__Basic" username="${wday.user}" password="${wday.password}" tenantName="${wday.tenant}" hostName="${wday.hostname}" doc:name="Workday: Basic" testConnectivtyService="Human_Resources"/>
+        
+    <apikit:config name="system-api-config" raml="system-api.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
+    
+    <flow name="system-api-main">
+        <http:listener config-ref="system-api-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="system-api-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="system-api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+
+   
+    
+    <flow name="get:/employees:system-api-config">
+        <set-variable variableName="queryParams" value="#[message.inboundProperties[&quot;http.query.params&quot;]]" doc:name="Save queryParams"/>
+        <dw:transform-message metadata:id="9310862b-be76-4fb5-8636-3f01c9670813" doc:name="Prepare SearchEmployees request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	(basic: {
+		lastModifiedDate: {
+			operator: "AFTER",
+			searchValue: flowVars.queryParams.modifiedAfter as :datetime
+		}
+	}) when (flowVars.queryParams.modifiedAfter?)
+} as :object {
+	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employees in NetSuite"/>
+        <dw:transform-message doc:name="Get internalIds from the response">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map $.internalId]]></dw:set-payload>
+            <dw:set-variable variableName="result"><![CDATA[%dw 1.0
+%output application/java
+---
+[]]]></dw:set-variable>
+        </dw:transform-message>
+        <foreach collection="payload" doc:name="For Each internalId">
+            <netsuite:get-record config-ref="Netsuite" type="EMPLOYEE" doc:name="Get Employee from NetSuite"/>
+            <dw:transform-message doc:name="Add Employee to result array">
+                <dw:set-variable variableName="result"><![CDATA[%dw 1.0
+%output application/java
+---
+using (address = payload.addressbookList.addressbook.addressbookAddress[0] when (payload.addressbookList != null and ((sizeOf payload.addressbookList) > 0)) otherwise {})
+(flowVars.result +
+{
+	id: payload.internalId,
+	firstName: payload.firstName when (payload.firstName != null) otherwise "",
+	lastName: payload.lastName when (payload.lastName != null) otherwise "",
+	(addressLine: address.addr1) when (address.addr1 != null),
+	(city: address.city) when (address.city != null),
+	(postalCode: address.zip) when (address.zip != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
+	(region: address.state) when (address.state != null),
+	(birthDate: payload.birthDate as :date) when (payload.birthDate != null),
+	(phone: payload.phone) when (payload.phone != null),
+	(email: payload.email) when (payload.email != null),
+	(positionTitle: payload.title) when (payload.title != null),
+	hireDate: payload.hireDate when (payload.hireDate != null) otherwise ""
+})]]></dw:set-variable>
+            </dw:transform-message>
+        </foreach>
+
+        <expression-component doc:name="Apply ordering"><![CDATA[import java.util.Map;
+import java.util.HashMap;
+
+Map fields = new HashMap();
+fields.put("id","id");
+fields.put("firstName", "firstName");
+fields.put("lastName", "lastName");
+fields.put("hireDate", "hireDate");
+
+payload = flowVars.result;
+
+// ordering
+if (!payload.isEmpty() && flowVars.queryParams.orderBy != null) {
+	dwScript = "(payload orderBy  $." + fields.get(flowVars.queryParams.orderBy) + ")";
+	if (flowVars.queryParams.order != null && flowVars.queryParams.order.equalsIgnoreCase("desc") ) {
+		dwScript += "[-1..0]";
+	}
+	payload = dw(dwScript);
+}
+
+//pagination
+if (!payload.isEmpty()   &&   flowVars.queryParams.pageSize != null ) {
+	
+	// return empty array when out of bounds or no results expected
+	if (flowVars.queryParams.pageSize == 0  ||  (flowVars.queryParams.page != null && ((flowVars.queryParams.page - 1) * flowVars.queryParams.pageSize ) > payload.size() - 1) ) {
+		payload = [];
+	} else {	
+			offset = ((flowVars.queryParams.page - 1) * flowVars.queryParams.pageSize);
+			limit  = (flowVars.queryParams.page  * flowVars.queryParams.pageSize) - 1;
+			limit = (limit > payload.size() - 1) ?  (payload.size() - 1) : limit;
+			flowVars.result = "limit: " + limit +  "  ** offset: " + offset;
+			dwScript =  "payload[" +  ((int)offset) +   ".." +  ((int)limit) + "]"; 
+			payload = dw(dwScript);
+	}
+}]]></expression-component>
+        <dw:transform-message doc:name="Transform payload into JSON output structure">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+
+    </flow>
+    
+    <flow name="post:/employees:application/json:system-api-config">
+
+        <json:json-to-object-transformer returnClass="java.util.Map" doc:name="JSON to Object" mimeType="application/java"/>
+        <validation:all doc:name="Validate input JSON">
+            <validation:validations>
+
+                <validation:is-not-null value="#[payload.lastName]" message="Last name is required."/>
+                <validation:is-not-null value="#[payload.addressLine]" message="Adress line is required."/>
+                <validation:is-not-null value="#[payload.city]" message="City is required."/>
+                <validation:is-not-null value="#[payload.country]" message="Country is required."/>
+                <validation:is-not-null value="#[payload.postalCode]" message="Postal code is required."/>
+                <validation:is-not-null value="#[payload.birthDate]" message="Birthdate is required."/>
+                <validation:is-not-null value="#[payload.phone]" message="Phone is required."/>
+                <validation:is-not-null value="#[payload.email]" message="Email is required."/>
+                <validation:is-not-null value="#[payload.positionTitle]" message="Position title is required."/>
+                <validation:is-not-null value="#[payload.weeklyHours]" message="Weekly hours are required."/>
+                <validation:is-not-null value="#[payload.basePay]" message="Base pay is required."/>
+                <validation:is-not-null value="#[payload.currency]" message="Currency is required."/>
+                <validation:is-not-null value="#[payload.firstName]" message="First name is required."/>
+            </validation:validations>
+
+        </validation:all>
+        <dw:transform-message metadata:id="9310862b-be76-4fb5-8636-3f01c9670813" doc:name="Prepare SearchEmployees request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	basic: {
+		firstName: {
+			operator: "IS",
+			searchValue: payload.firstName
+		},
+		lastName: {
+			operator: "IS",
+			searchValue: payload.lastName
+		}
+	}
+} as :object {
+	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
+}]]></dw:set-payload>
+            <dw:set-variable variableName="input"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+        </dw:transform-message>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employee in NetSuite"/>
+        <choice doc:name="Doesn't Employee with the same firstName and lastName exist?">
+            <when expression="#[!payload.hasNext()]">
+                <dw:transform-message metadata:id="939fcd41-0403-4fe5-9a1d-4f163747e49b" doc:name="Prepare AddNewEmployee request">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	addressbookList: {
+		addressbook: [{
+			addressbookAddress: {
+				addr1: flowVars.input.addressLine,
+				city: flowVars.input.city,
+				country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country),
+				(state: flowVars.input.region) when (flowVars.input.region?),
+				zip: flowVars.input.postalCode
+			}
+		}]
+	},
+	birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime,
+	earningList: {
+		employeeEarning: [{
+			defaultHours: flowVars.input.weeklyHours,
+			payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency
+		}]
+	},
+	email: flowVars.input.email,
+	firstName: flowVars.input.firstName,
+	hireDate: flowVars.input.hireDate when (flowVars.input.hireDate?) otherwise now as :date,
+	lastName: flowVars.input.lastName,
+	phone: flowVars.input.phone,
+	ratesList: {
+		employeeRates: [{
+			entityCurrency: {
+				name: flowVars.input.currency
+			},
+			rate: flowVars.input.basePay
+		}]
+	},
+	subsidiary: {
+		internalId: p("nets.customer.subsidiary.internalId")
+	},
+	title: flowVars.input.positionTitle
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <netsuite:add-record config-ref="Netsuite" recordType="EMPLOYEE" doc:name="Add new Employee in Netsuite"/>
+                <set-property propertyName="location" value="#[ 'http://' + '${api.domain}' + ':' + '${http.port}' + '${api.basePath}' + '/employees/' + payload.internalId ]" doc:name="Set Location Header"/>
+                <set-property propertyName="http.status" value="#[201]" doc:name="Set HTTP status"/>
+                <dw:transform-message doc:name="Build JSON response">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{ 
+	id: payload.internalId
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="#[422]" doc:name="Unprocessable entity status code"/>
+                <set-payload value="{ &quot;message&quot;: &quot;There is already Employee with the same firstName and lastName in Netsuite.&quot; }" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+
+
+    </flow>
+    
+    <flow name="get:/employees/{id}:system-api-config">
+        <dw:transform-message metadata:id="a0fc16f2-afe7-4316-92e4-87248e6165c7" doc:name="Prepare EmployeeSearch request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: flowVars.id
+		}
+	}
+} as :object {
+	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employee in NetSuite"/>
+
+
+        <choice doc:name="Does Employee exist?">
+            <when expression="#[payload.hasNext()]">
+                <netsuite:get-record config-ref="Netsuite" internalId="#[flowVars.id]" type="EMPLOYEE" doc:name="Get Employee from NetSuite"/>
+                <dw:transform-message doc:name="Transform response to JSON structure">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+using (address = payload.addressbookList.addressbook.addressbookAddress[0] when (payload.addressbookList != null and ((sizeOf payload.addressbookList) > 0)) otherwise {})
+{
+	id: payload.internalId,
+	firstName: payload.firstName when (payload.firstName != null) otherwise "",
+	lastName: payload.lastName when (payload.lastName != null) otherwise "",
+	(addressLine: address.addr1) when (address.addr1 != null),
+	(city: address.city) when (address.city != null),
+	(postalCode: address.zip) when (address.zip != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
+	(region: address.state) when (address.state != null),
+	(birthDate: payload.birthDate as :date) when (payload.birthDate != null),
+	(phone: payload.phone) when (payload.phone != null),
+	(email: payload.email) when (payload.email != null),
+	(positionTitle: payload.title) when (payload.title != null),
+	hireDate: payload.hireDate when (payload.hireDate != null) otherwise ""
+}]]></dw:set-payload>
+                </dw:transform-message>
+
+
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="#[404]" doc:name="Resource Not Found"/>
+                <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+
+
+    </flow>
+    <flow name="patch:/employees/{id}:application/json:system-api-config">
+        <json:json-to-object-transformer returnClass="java.util.Map" mimeType="application/java" doc:name="JSON to Object"/>
+        <validation:all doc:name="Validate input JSON">
+            <validation:validations>
+                <validation:is-true expression="#[(payload.basePay != null &amp;&amp; payload.currency != null) || (payload.basePay == null &amp;&amp; payload.currency == null)]" message="You have to specify currency and basePay together."/>
+            </validation:validations>
+        </validation:all>
+        <dw:transform-message metadata:id="a0fc16f2-afe7-4316-92e4-87248e6165c7" doc:name="Prepare EmployeeSearch request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: flowVars.id
+		}
+	}
+} as :object {
+	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
+}]]></dw:set-payload>
+            <dw:set-variable variableName="input"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+        </dw:transform-message>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employee in NetSuite"/>
+
+        <choice doc:name="Does Employee exist?">
+            <when expression="#[payload.hasNext()]">
+                <dw:transform-message doc:name="Prepare UpdateEmployee request">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	internalId: flowVars.id,
+	(addressbookList: {
+		addressbook: [{
+			addressbookAddress: {
+				(addr1: flowVars.input.addressLine) when (flowVars.input.addressLine?),
+				(city: flowVars.input.city) when (flowVars.input.city?),
+				(country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country)) when (flowVars.input.country?),
+				(state: flowVars.input.region) when (flowVars.input.region?),
+				(zip: flowVars.input.postalCode) when (flowVars.input.postalCode?)
+			}
+		}]
+	})when (flowVars.input.addressLine? or flowVars.input.city? or flowVars.input.country? or flowVars.input.region? or flowVars.input.postalCode?),
+	(birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime) when (flowVars.input.birthDate?),
+	(earningList: {
+		employeeEarning: [{
+			(defaultHours: flowVars.input.weeklyHours) when (flowVars.input.weeklyHours?),
+			(payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency) when (flowVars.input.basePay? and flowVars.input.currency?)
+		}]
+	}) when (flowVars.input.weeklyHours? or (flowVars.input.basePay? and flowVars.input.currency?)),
+	(email: flowVars.input.email) when (flowVars.input.email?),
+	(firstName: flowVars.input.firstName) when (flowVars.input.firstName?),
+	(hireDate: flowVars.input.hireDate) when (flowVars.input.hireDate?),
+	(lastName: flowVars.input.lastName) when (flowVars.input.lastName?),
+	(phone: flowVars.input.phone) when (flowVars.input.phone?),
+	(ratesList: {
+		employeeRates: [{
+			(entityCurrency: {
+				name: flowVars.input.currency
+			}) when (flowVars.input.currency?),
+			(rate: flowVars.input.basePay) when (flowVars.input.basePay?)
+		}]
+	}) when (flowVars.input.currency? or flowVars.input.basePay?),
+	subsidiary: {
+		internalId: p("nets.customer.subsidiary.internalId")
+	},
+	(title: flowVars.input.positionTitle) when (flowVars.input.positionTitle?)
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <netsuite:update-record config-ref="Netsuite" recordType="EMPLOYEE" doc:name="Update Employee in NetSuite"/>
+
+                <dw:transform-message doc:name="Prepare JSON output structure">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	status: "OK"
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="#[404]" doc:name="Resource Not Found"/>
+                <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+    </flow>
+
+    
+        
+    
+    <flow name="delete:/employees/{id}:system-api-config">
+        <dw:transform-message metadata:id="a0fc16f2-afe7-4316-92e4-87248e6165c7" doc:name="Prepare EmployeeSearch request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: flowVars.id
+		}
+	}
+} as :object {
+	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employee in NetSuite"/>
+
+
+        <choice doc:name="Does Employee exist?">
+            <when expression="#[payload.hasNext()]">
+                <dw:transform-message metadata:id="f74a5d97-e488-4fae-9bd7-b11603369cdd" doc:name="Prepare EmployeeRecordRef object">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	internalId: flowVars.id,
+	type: "EMPLOYEE"
+} as :object {
+	class : "com.netsuite.webservices.platform.core.RecordRef"
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <netsuite:delete-record config-ref="Netsuite" doc:name="Delete Employee in NetSuite"/>
+                <dw:transform-message doc:name="Prepare JSON output structure">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	status: "OK"
+}]]></dw:set-payload>
+                </dw:transform-message>
+
+
+
+
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="#[404]" doc:name="Resource Not Found"/>
+                <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+
+    </flow>
+    
+    <flow doc:description="The DW uses pick enum value for Netsuite country based on the input." name="lookUpNetsuiteCountryEnumFlow" processingStrategy="synchronous">
+        <dw:transform-message doc:name="Get Country in Netsuite">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+using (country = upper payload)
+	("UNITED_STATES" when (country == "US" or country == "USA") otherwise
+	("UNITED_KINGDOM" when (country == "UK" or country == "GBR") otherwise payload))
+]]></dw:set-payload>
+        </dw:transform-message>
+
+
+        <logger doc:name="Log the Country in Netsuite" level="INFO" message="Country is : #[payload]"/>
+    </flow>
+    <flow name="lookUpRealCountryNamefromNetsuiteEnumFlow" processingStrategy="synchronous" doc:description="The DW uses pick enum value for Netsuite country based on the input.">
+        <dw:transform-message doc:name="Get Country in Netsuite">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+using (country = upper payload)
+	("USA" when (country == "UNITED_STATES") otherwise
+	("UK" when (country == "UNITED_KINGDOM") otherwise payload))
+]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Country is : #[payload]" level="INFO" doc:name="Log the real Country name"/>
+    </flow>
+
+
+    <apikit:mapping-exception-strategy name="system-api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>        
+        <apikit:mapping statusCode="422">
+            <apikit:exception value="org.mule.extension.validation.api.MultipleValidationException"/>
+            <apikit:exception value="org.mule.module.netsuite.exception.NetSuiteException"/>
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;#[exception.getMessage()]&quot; }" doc:name="Unprocessable entity"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+
+</mule>

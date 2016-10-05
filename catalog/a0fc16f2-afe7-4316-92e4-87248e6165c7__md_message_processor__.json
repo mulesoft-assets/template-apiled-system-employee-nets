@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "SearchEmployeeCriteria"
+        }
+    },
+    "id": "a0fc16f2-afe7-4316-92e4-87248e6165c7",
+    "version": "5.2.0.0"
+}
