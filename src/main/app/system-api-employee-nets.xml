@@ -28,8 +28,7 @@ http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule
     
     <http:listener-config name="system-api-httpListenerConfig" host="0.0.0.0" port="${http.port}" doc:name="HTTP Listener Configuration"/>
     <netsuite:config-login-authentication name="Netsuite" account="${nets.account}" email="${nets.email}" password="${nets.password}" roleId="${nets.roleId}" receiveTimeout="300000" applicationId="${nets.applicationId}" doc:name="NetSuite: Login Authentication"/>
-    
-    <wd-connector:config name="Workday__Basic" username="${wday.user}" password="${wday.password}" tenantName="${wday.tenant}" hostName="${wday.hostname}" doc:name="Workday: Basic" testConnectivtyService="Human_Resources"/>
+
         
     <apikit:config name="system-api-config" raml="system-api.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
     
@@ -86,11 +85,11 @@ using (address = payload.addressbookList.addressbook.addressbookAddress[0] when 
 	(postalCode: address.zip) when (address.zip != null),
 	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
 	(region: address.state) when (address.state != null),
-	(birthDate: payload.birthDate as :date) when (payload.birthDate != null),
+	(birthDate: (payload.birthDate as :datetime)[0..9] ++ (payload.birthDate as :datetime)[19..-1] ) when (payload.birthDate != null),
 	(phone: payload.phone) when (payload.phone != null),
 	(email: payload.email) when (payload.email != null),
 	(positionTitle: payload.title) when (payload.title != null),
-	hireDate: payload.hireDate when (payload.hireDate != null) otherwise ""
+	hireDate: (payload.hireDate[0..9] ++ payload.hireDate[19..-1]) when (payload.hireDate != null) otherwise ""
 })]]></dw:set-variable>
             </dw:transform-message>
         </foreach>
@@ -286,11 +285,11 @@ using (address = payload.addressbookList.addressbook.addressbookAddress[0] when 
 	(postalCode: address.zip) when (address.zip != null),
 	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
 	(region: address.state) when (address.state != null),
-	(birthDate: payload.birthDate as :date) when (payload.birthDate != null),
+	(birthDate: (payload.birthDate as :datetime)[0..9] ++ (payload.birthDate as :datetime)[19..-1] ) when (payload.birthDate != null),
 	(phone: payload.phone) when (payload.phone != null),
 	(email: payload.email) when (payload.email != null),
 	(positionTitle: payload.title) when (payload.title != null),
-	hireDate: payload.hireDate when (payload.hireDate != null) otherwise ""
+	hireDate: (payload.hireDate[0..9] ++ payload.hireDate[19..-1]) when (payload.hireDate != null) otherwise ""
 }]]></dw:set-payload>
                 </dw:transform-message>
 
