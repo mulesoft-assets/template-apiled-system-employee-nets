@@ -57,7 +57,7 @@ http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule
 	class : "com.netsuite.webservices.lists.employees.EmployeeSearch"
 }]]></dw:set-payload>
         </dw:transform-message>
-        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employees in NetSuite"/>
+        <netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE" doc:name="Search Employees in NetSuite" fetchSize="#[((message.inboundProperties.'http.query.params'.page * message.inboundProperties.'http.query.params'.pageSize))&lt;10 ? 10 : (int)(message.inboundProperties.'http.query.params'.page * message.inboundProperties.'http.query.params'.pageSize)]"/>
         <dw:transform-message doc:name="Get internalIds from the response">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
