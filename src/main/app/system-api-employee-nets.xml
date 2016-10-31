@@ -93,27 +93,10 @@ using (address = payload.addressbookList.addressbook.addressbookAddress[0] when 
 })]]></dw:set-variable>
             </dw:transform-message>
         </foreach>
-
-        <expression-component doc:name="Apply ordering"><![CDATA[import java.util.Map;
+        <expression-component doc:name="Apply pagination"><![CDATA[import java.util.Map;
 import java.util.HashMap;
 
-Map fields = new HashMap();
-fields.put("id","id");
-fields.put("firstName", "firstName");
-fields.put("lastName", "lastName");
-fields.put("hireDate", "hireDate");
-
 payload = flowVars.result;
-
-// ordering
-if (!payload.isEmpty() && flowVars.queryParams.orderBy != null) {
-	dwScript = "(payload orderBy  $." + fields.get(flowVars.queryParams.orderBy) + ")";
-	if (flowVars.queryParams.order != null && flowVars.queryParams.order.equalsIgnoreCase("desc") ) {
-		dwScript += "[-1..0]";
-	}
-	payload = dw(dwScript);
-}
-
 //pagination
 if (!payload.isEmpty()   &&   flowVars.queryParams.pageSize != null ) {
 	
@@ -129,11 +112,25 @@ if (!payload.isEmpty()   &&   flowVars.queryParams.pageSize != null ) {
 			payload = dw(dwScript);
 	}
 }]]></expression-component>
-        <dw:transform-message doc:name="Transform payload into JSON output structure">
+
+        <dw:transform-message doc:name="Apply ordering and transform payload into JSON output structure">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
+
+%var orderByKeyMap = { 
+	id: "id",
+	firstName: "firstName",
+	lastName :"lastName",
+ 	hireDate:"hireDate"	
+}
+%function applyOrdering(result){
+  result: [] when (result is :empty) otherwise
+          ( (result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]]) when ((flowVars.queryParams.order == "asc" or flowVars.queryParams.order == null) and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
+          ( ((result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]])[-1..0]) when (flowVars.queryParams.order == "desc" and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
+          ( result)))
+}
 ---
-payload]]></dw:set-payload>
+applyOrdering(payload).result]]></dw:set-payload>
         </dw:transform-message>
 
     </flow>
