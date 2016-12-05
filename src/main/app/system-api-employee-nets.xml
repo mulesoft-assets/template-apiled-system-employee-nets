@@ -67,46 +67,42 @@ http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule
 		<netsuite:search config-ref="Netsuite" searchRecord="EMPLOYEE"
 			doc:name="Search Employees in NetSuite"
 			fetchSize="#[((message.inboundProperties.'http.query.params'.page * message.inboundProperties.'http.query.params'.pageSize))&lt;10 ? 10 : (int)(message.inboundProperties.'http.query.params'.page * message.inboundProperties.'http.query.params'.pageSize)]" />
-		<dw:transform-message doc:name="Get internalIds from the response">
-			<dw:set-payload><![CDATA[%dw 1.0
+        <dw:transform-message metadata:id="8d9d5f70-ad28-4ba9-900d-55b772114032" doc:name="Prepare GetList of Employees request">
+            <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map $.internalId]]></dw:set-payload>
-			<dw:set-variable variableName="result"><![CDATA[%dw 1.0
+payload map ({
+	internalId: $.internalId,
+	type: "EMPLOYEE"
+} as :object {
+	class : "com.netsuite.webservices.platform.core.RecordRef"
+})]]></dw:set-payload>
+        </dw:transform-message>
+        <netsuite:get-list config-ref="Netsuite" doc:name="Get List of Employees from NetSuite"/>
+        <dw:transform-message doc:name="Prepare Employees structure">
+            <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-[]]]></dw:set-variable>
-		</dw:transform-message>
-		<foreach collection="payload" doc:name="For Each internalId">
-			<netsuite:get-record config-ref="Netsuite" type="EMPLOYEE"
-				doc:name="Get Employee from NetSuite" />
-			<dw:transform-message doc:name="Add Employee to result array">
-				<dw:set-variable variableName="result"><![CDATA[%dw 1.0
-%output application/java
----
-using (address = payload.addressbookList.addressbook.addressbookAddress[0] when (payload.addressbookList != null and ((sizeOf payload.addressbookList) > 0)) otherwise {})
-(flowVars.result +
-{
-	id: payload.internalId,
-	firstName: payload.firstName when (payload.firstName != null) otherwise "",
-	lastName: payload.lastName when (payload.lastName != null) otherwise "",
+payload map using (address = $.record.addressbookList.addressbook[0].addressbookAddress when ($.record.addressbookList != null and ((sizeOf $.record.addressbookList.addressbook) > 0)) otherwise {}){
+	id: $.record.internalId,
+	firstName: $.record.firstName when ($.record.firstName != null) otherwise "",
+	lastName: $.record.lastName when ($.record.lastName != null) otherwise "",
 	(addressLine: address.addr1) when (address.addr1 != null),
 	(city: address.city) when (address.city != null),
-	(postalCode: address.zip) when (address.zip != null),
+	(postalCode: address.'zip') when (address.'zip' != null),
 	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
 	(region: address.state) when (address.state != null),
-	(birthDate: (payload.birthDate as :datetime)[0..9] ++ (payload.birthDate as :datetime)[19..-1] ) when (payload.birthDate != null),
-	(phone: payload.phone) when (payload.phone != null),
-	(email: payload.email) when (payload.email != null),
-	(positionTitle: payload.title) when (payload.title != null),
-	hireDate: (payload.hireDate[0..9] ++ payload.hireDate[19..-1]) when (payload.hireDate != null) otherwise ""
-})]]></dw:set-variable>
-			</dw:transform-message>
-		</foreach>
+	(birthDate: ($.record.birthDate as :datetime)[0..9] ++ ($.record.birthDate as :datetime)[19..-1] ) when ($.record.birthDate != null),
+	(phone: $.record.phone) when ($.record.phone != null),
+	(email: $.record.email) when ($.record.email != null),
+	(positionTitle: $.record.title) when ($.record.title != null),
+	hireDate: ($.record.hireDate[0..9] ++ $.record.hireDate[19..-1]) when ($.record.hireDate != null) otherwise ""
+}]]></dw:set-payload>
+        </dw:transform-message>
+
 		<expression-component doc:name="Apply pagination"><![CDATA[import java.util.Map;
 import java.util.HashMap;
 
-payload = flowVars.result;
 //pagination
 if (!payload.isEmpty()   &&   flowVars.queryParams.pageSize != null ) {
 	
