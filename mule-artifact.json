@@ -1,6 +1,8 @@
 {
   "configs": [
-    "template-apiled-system-employee-nets.xml"
+    "implementation.xml",
+    "global.xml",
+    "process-api.xml"
   ],
   "secureProperties": [],
   "redeploymentEnabled": true,
