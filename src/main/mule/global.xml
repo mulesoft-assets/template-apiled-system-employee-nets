@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" 
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 	http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-	http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
 
 		<configuration-properties doc:name="Configuration properties" doc:id="7305b8b1-e587-4752-acb3-1297d0d1587d" file="common.properties" />
 		<configuration-properties doc:name="Configuration properties" doc:id="bfc8649f-d26c-4291-802d-21b23d9ea565" file="mule-artifact.properties" />
@@ -17,5 +18,9 @@
         	<http:listener-connection host="0.0.0.0" port="${http.port}" />
     	</http:listener-config>
     
-		<apikit:config name="template-apiled-system-employee-nets-config" raml="template-apiled-system-employee-nets.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />    
-	</mule>
+		<apikit:config name="template-apiled-system-employee-nets-config" raml="template-apiled-system-employee-nets.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<netsuite:config name="NetSuite_Config" doc:name="NetSuite Config" doc:id="b751b9e1-50a1-42b0-b059-212eb5a72884" >
+		<netsuite:login-authentication-connection email="${nets.email}" password="${nets.password}" account="${nets.account}" roleId="${nets.roleId}" applicationId="${nets.applicationId}" />
+	</netsuite:config>    
+	
+</mule>
