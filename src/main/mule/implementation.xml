@@ -425,5 +425,397 @@ output application/json
 ]]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<ee:transform doc:name="Prepare SearchEmployees request" doc:id="58da9d18-6fe7-46b2-9b65-a5acd7f2d3a0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	(basic: {
+		lastModifiedDate: {
+			operator: "AFTER",
+			searchValue: attributes.queryParams.modifiedAfter as Date
+		}
+	}) if (attributes.queryParams.modifiedAfter?)
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="MOCK Search call to Netsuite" doc:id="15a4fc15-0103-425c-8f9a-fd7d2439b9be" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result" : "OK"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Prepare GetList of Employees request" doc:id="95b2bee9-df5b-4dbb-8154-75e6758bb235" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map ({
+	internalId: $.internalId,
+	"type": "EMPLOYEE"
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.RecordRef"
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="MOCK get list of Emplyeees from Netsuite" doc:id="8c694c5b-6c1a-4278-9b7a-5993910f7648" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Apply pagination" doc:id="477090b4-bfb2-4120-abb0-87994433fc23" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map using (address = $.record.addressbookList.addressbook[0].addressbookAddress when ($.record.addressbookList != null and ((sizeOf $.record.addressbookList.addressbook) > 0)) otherwise {}){
+	id: $.record.internalId,
+	firstName: $.record.firstName when ($.record.firstName != null) otherwise "",
+	lastName: $.record.lastName when ($.record.lastName != null) otherwise "",
+	(addressLine: address.addr1) when (address.addr1 != null),
+	(city: address.city) when (address.city != null),
+	(postalCode: address.'zip') when (address.'zip' != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
+	(region: address.state) when (address.state != null),
+	(birthDate: ($.record.birthDate as :datetime)[0..9] ++ ($.record.birthDate as :datetime)[19..-1] ) when ($.record.birthDate != null),
+	(phone: $.record.phone) when ($.record.phone != null),
+	(email: $.record.email) when ($.record.email != null),
+	(positionTitle: $.record.title) when ($.record.title != null),
+	hireDate: ($.record.hireDate[0..9] ++ $.record.hireDate[19..-1]) when ($.record.hireDate != null) otherwise ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Apply ordering and transform payload into JSON output structure" doc:id="f230ddcd-8844-4654-aabe-f9c49952e1d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var orderByKeyMap = { 
+	id: "id",
+	firstName: "firstName",
+	lastName :"lastName",
+ 	hireDate:"hireDate"	
+}
+function applyOrdering(result){
+  result: [] when (result is :empty) otherwise
+          ( (result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]]) when ((flowVars.queryParams.order == "asc" or flowVars.queryParams.order == null) and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
+          ( ((result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]])[-1..0]) when (flowVars.queryParams.order == "desc" and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
+          ( result)))
+}
+---
+applyOrdering(payload).result]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getEmployeesById" doc:id="29cf75c4-848b-4f0a-a9c8-c6052c36b9d3" >
+		<ee:transform doc:name="Prepare EmployeeSearch request" doc:id="2ffb078a-7d3a-4f5e-9cce-760546c628a4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: vars.id
+		}
+	}
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="MOCK Netsuite search" doc:id="5cf5fda3-0bec-48f8-b422-93454daadd7f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result" : "OK"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Does employee exists" doc:id="038df114-4563-418b-a67b-7192eed86025" >
+			<when expression="payload.result=='OK'" >
+				<ee:transform doc:name="Get Employee from Netsuite" doc:id="03d495ef-fa2f-4ac5-b90a-bf04733c2d95" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	internalId: vars.id,
+	"type": "EMPLOYEE"
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.RecordRef"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="2ce29851-7f20-4b6c-966b-5ceba42f65e9" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+using (address = payload.addressbookList.addressbook.addressbookAddress[0] when (payload.addressbookList != null and ((sizeOf payload.addressbookList) > 0)) otherwise {})
+{
+	id: payload.internalId,
+	firstName: payload.firstName when (payload.firstName != null) otherwise "",
+	lastName: payload.lastName when (payload.lastName != null) otherwise "",
+	(addressLine: address.addr1) when (address.addr1 != null),
+	(city: address.city) when (address.city != null),
+	(postalCode: address.zip) when (address.zip != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
+	(region: address.state) when (address.state != null),
+	(birthDate: (payload.birthDate as :datetime)[0..9] ++ (payload.birthDate as :datetime)[19..-1] ) when (payload.birthDate != null),
+	(phone: payload.phone) when (payload.phone != null),
+	(email: payload.email) when (payload.email != null),
+	(positionTitle: payload.title) when (payload.title != null),
+	hireDate: (payload.hireDate[0..9] ++ payload.hireDate[19..-1]) when (payload.hireDate != null) otherwise ""
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Response, status code 404" doc:id="ee3f55d0-4f0c-4e67-9471-a70b9faf5b97" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	"message": "Resource not found"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+	404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="patchEmployeesById" doc:id="a3d942e5-c253-4cdb-9af6-2f20798c9755" >
+		<json:validate-schema doc:name="Copy_of_Validate schema" doc:id="ee1887a5-909d-4be2-bbd4-506e0ebd611d" schema="api/examples/post_employees_example.json" />
+		<ee:transform doc:name="Prepare EmployeeSearch request" doc:id="f96b2166-ffe7-4845-b3c7-511ae2830415" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: vars.id
+		}
+	}
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="MOCK Netsuite search" doc:id="7db31d75-7057-4038-8cc4-bc6ef9ba70b4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result" : "OK"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Does employee exists" doc:id="81545ef7-887c-4145-b4e6-26b0ecfe048f" >
+			<when expression="payload.result=='OK'"  >
+				<ee:transform doc:name="Prepare UpdateEmployee request" doc:id="b96cf59d-5cf7-4d05-a5d4-c356a86c9ba4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	internalId: flowVars.id,
+	(addressbookList: {
+		addressbook: [{
+			addressbookAddress: {
+				(addr1: flowVars.input.addressLine) when (flowVars.input.addressLine?),
+				(city: flowVars.input.city) when (flowVars.input.city?),
+				(country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country)) when (flowVars.input.country?),
+				(state: flowVars.input.region) when (flowVars.input.region?),
+				(zip: flowVars.input.postalCode) when (flowVars.input.postalCode?)
+			}
+		}]
+	})when (flowVars.input.addressLine? or flowVars.input.city? or flowVars.input.country? or flowVars.input.region? or flowVars.input.postalCode?),
+	(birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime) when (flowVars.input.birthDate?),
+	(earningList: {
+		employeeEarning: [{
+			(defaultHours: flowVars.input.weeklyHours) when (flowVars.input.weeklyHours?),
+			(payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency) when (flowVars.input.basePay? and flowVars.input.currency?)
+		}]
+	}) when (flowVars.input.weeklyHours? or (flowVars.input.basePay? and flowVars.input.currency?)),
+	(email: flowVars.input.email) when (flowVars.input.email?),
+	(firstName: flowVars.input.firstName) when (flowVars.input.firstName?),
+	(hireDate: flowVars.input.hireDate) when (flowVars.input.hireDate?),
+	(lastName: flowVars.input.lastName) when (flowVars.input.lastName?),
+	(phone: flowVars.input.phone) when (flowVars.input.phone?),
+	(ratesList: {
+		employeeRates: [{
+			(entityCurrency: {
+				name: flowVars.input.currency
+			}) when (flowVars.input.currency?),
+			(rate: flowVars.input.basePay) when (flowVars.input.basePay?)
+		}]
+	}) when (flowVars.input.currency? or flowVars.input.basePay?),
+	subsidiary: {
+		internalId: p("nets.customer.subsidiary.internalId")
+	},
+	(title: flowVars.input.positionTitle) when (flowVars.input.positionTitle?)
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="70c561c5-8821-4458-81f9-b2962b38dd14" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: "OK"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Response, status code 404" doc:id="1316fa88-1a04-41d0-b49a-9b233346a834" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	"message": "Resource not found"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+	404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="deleteEmployeesById" doc:id="92c0f343-c2fa-4579-a826-1df418f02e6a" >
+		<ee:transform doc:name="Prepare EmployeeSearch request" doc:id="03a9ee3f-937b-4e40-8f37-1b447795f683" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	basic: {
+		internalIdNumber: {
+			operator: "EQUAL_TO",
+			searchValue: vars.id
+		}
+	}
+} as Object {
+	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="MOCK Netsuite search" doc:id="93448ad8-2ca6-43a4-ac04-ea4c5940ac04" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result" : "OK"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Does employee exists" doc:id="052668d4-bd8f-4e1b-abad-2afd5bc67f40" >
+			<when expression="payload.result=='OK'" >
+				<ee:transform doc:name="Prepare UpdateEmployee request" doc:id="83db78f1-5367-4c97-bd06-720d3824698c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	internalId: flowVars.id,
+	(addressbookList: {
+		addressbook: [{
+			addressbookAddress: {
+				(addr1: flowVars.input.addressLine) when (flowVars.input.addressLine?),
+				(city: flowVars.input.city) when (flowVars.input.city?),
+				(country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country)) when (flowVars.input.country?),
+				(state: flowVars.input.region) when (flowVars.input.region?),
+				(zip: flowVars.input.postalCode) when (flowVars.input.postalCode?)
+			}
+		}]
+	})when (flowVars.input.addressLine? or flowVars.input.city? or flowVars.input.country? or flowVars.input.region? or flowVars.input.postalCode?),
+	(birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime) when (flowVars.input.birthDate?),
+	(earningList: {
+		employeeEarning: [{
+			(defaultHours: flowVars.input.weeklyHours) when (flowVars.input.weeklyHours?),
+			(payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency) when (flowVars.input.basePay? and flowVars.input.currency?)
+		}]
+	}) when (flowVars.input.weeklyHours? or (flowVars.input.basePay? and flowVars.input.currency?)),
+	(email: flowVars.input.email) when (flowVars.input.email?),
+	(firstName: flowVars.input.firstName) when (flowVars.input.firstName?),
+	(hireDate: flowVars.input.hireDate) when (flowVars.input.hireDate?),
+	(lastName: flowVars.input.lastName) when (flowVars.input.lastName?),
+	(phone: flowVars.input.phone) when (flowVars.input.phone?),
+	(ratesList: {
+		employeeRates: [{
+			(entityCurrency: {
+				name: flowVars.input.currency
+			}) when (flowVars.input.currency?),
+			(rate: flowVars.input.basePay) when (flowVars.input.basePay?)
+		}]
+	}) when (flowVars.input.currency? or flowVars.input.basePay?),
+	subsidiary: {
+		internalId: p("nets.customer.subsidiary.internalId")
+	},
+	(title: flowVars.input.positionTitle) when (flowVars.input.positionTitle?)
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="e08d25c8-8eae-44a6-8fff-7d45adca0df3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: "OK"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Copy_of_Response, status code 404" doc:id="04dd67cd-1f49-4b81-a08d-998d301f97fd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	"message": "Resource not found"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+	404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
 	</flow>
 </mule>

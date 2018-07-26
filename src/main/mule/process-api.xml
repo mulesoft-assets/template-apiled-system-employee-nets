@@ -120,68 +120,13 @@ output application/json
         </error-handler>
     </flow>
     <flow name="delete:\employees\(id):template-apiled-system-employee-nets-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  status: "OK"
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="deleteEmployeesById" doc:id="ef3538db-684b-4a1a-8d0b-2478ccb75a64" name="deleteEmployeesById"/>
     </flow>
     <flow name="patch:\employees\(id):application\json:template-apiled-system-employee-nets-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  status: "OK"
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="patchEmployeesById" doc:id="ebabfa67-4e89-4a64-9319-50dda7a6b451" name="patchEmployeesById"/>
     </flow>
     <flow name="get:\employees\(id):template-apiled-system-employee-nets-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  id: "21016",
-  firstName: "Chad",
-  lastName: "Anderson",
-  addressLine: "200 W. Grand  Apt. 1965",
-  city: "Chicago",
-  postalCode: "60610",
-  country: "USA",
-  region: "Illinois",
-  birthDate: "1974-05-22-07:00",
-  phone: "992-4345",
-  email: "canderson@workday.net",
-  positionTitle: "Senior Benefits Analyst",
-  hireDate: "2000-01-01-08:00",
-  weeklyHours: "40"
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="getEmployeesById" doc:id="05560bef-175f-442c-973c-3feafb144471" name="getEmployeesById"/>
     </flow>
     <flow name="get:\employees:template-apiled-system-employee-nets-config">
 		<flow-ref doc:name="getEmployeesFlow" doc:id="79f4caa0-8866-4acf-b7b5-8ffb1588f21c" name="getEmployeesFlow"/>
