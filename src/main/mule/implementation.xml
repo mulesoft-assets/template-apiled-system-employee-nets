@@ -96,335 +96,6 @@ output application/java
 		</choice>
 	</flow>
 	<flow name="getEmployeesFlow" doc:id="e6a9bcf6-03e7-4428-8388-aaa1c7ce8d79" >
-		<ee:transform doc:name="Transform Message" doc:id="ec1261c9-de57-4254-9c7d-6136a1601c7f" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-[
-  {
-    id: "21001",
-    firstName: "Logan",
-    lastName: "McNeil",
-    addressLine: "3939 The Embarcadero",
-    city: "San Francisco",
-    postalCode: "94111",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1972-05-25-07:00",
-    phone: "444-8262",
-    email: "kit.wong+jobvite@mulesoft.com",
-    positionTitle: "Chief Human Resources Officer",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21002",
-    firstName: "Steve",
-    lastName: "Morgan",
-    addressLine: "965 Tulare Avenue",
-    city: "Berkeley",
-    postalCode: "94707",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1959-05-22-07:00",
-    phone: "635-1856",
-    email: "smorgan@workday.net",
-    positionTitle: "Chief Executive Officer",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21003",
-    firstName: "Oliver",
-    lastName: "Reynolds",
-    addressLine: "2788 Clay Street",
-    city: "San Francisco",
-    postalCode: "94111",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1962-04-10-08:00",
-    phone: "435-1163",
-    email: "oreynolds@workday.net",
-    positionTitle: "Chief Information Officer",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21004",
-    firstName: "Maximilian",
-    lastName: "Schneider",
-    addressLine: "300 Road st",
-    city: "San Francisco",
-    postalCode: "94102",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1967-01-19-08:00",
-    phone: "766-0809",
-    email: "mschneider@workday.net",
-    positionTitle: "Chief Operating Officer",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21005",
-    firstName: "Teresa",
-    lastName: "Serrano",
-    addressLine: "1155 Avenue of the Americas",
-    city: "New York",
-    postalCode: "10036",
-    country: "USA",
-    region: "Not presented",
-    birthDate: "1957-05-05-07:00",
-    phone: "755-8292",
-    email: "tserrano@workday.net",
-    positionTitle: "Chief Financial Officer",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21006",
-    firstName: "Maria",
-    lastName: "Cardoza",
-    addressLine: "4432 John Daly Blvd.",
-    city: "Daly City",
-    postalCode: "94707",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1971-01-29-08:00",
-    phone: "445-6767",
-    email: "mcardoza@workday.net",
-    positionTitle: "Director, Employee Benefits",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21007",
-    firstName: "Jacqueline",
-    lastName: "Desjardins",
-    addressLine: "1888 Broadway Street  Apt. # 910",
-    city: "San Francisco",
-    postalCode: "94109",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1969-02-17-08:00",
-    phone: "828-1466",
-    email: "jdesjardins@workday.net",
-    positionTitle: "Director, Recruiting Services",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21008",
-    firstName: "Betty",
-    lastName: "Liu",
-    addressLine: "3939 The Embarcadero",
-    city: "San Francisco",
-    postalCode: "94111",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1990-11-22-08:00",
-    phone: "445-6778",
-    email: "bliu@workday.net",
-    positionTitle: "Director, Payroll Operations",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21009",
-    firstName: "Pedro",
-    lastName: "Santiago",
-    addressLine: "5067 Thomas Street",
-    city: "Annapolis",
-    postalCode: "21409",
-    country: "USA",
-    region: "Not presented",
-    birthDate: "1960-02-29-08:00",
-    phone: "431-1256",
-    email: "psantiago@workday.net",
-    positionTitle: "Director, Workforce Planning",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21012",
-    firstName: "Norman",
-    lastName: "Chan",
-    addressLine: "541 Biscayne Drive",
-    city: "San Rafael",
-    postalCode: "94901",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1979-08-02-07:00",
-    phone: "333-4554",
-    email: "nchan@workday.net",
-    positionTitle: "Staff Payroll Specialist",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21010",
-    firstName: "Lillian",
-    lastName: "Chu",
-    addressLine: "1515 Spruce Street",
-    city: "Berkeley",
-    postalCode: "94709",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1970-07-22-07:00",
-    phone: "692-3646",
-    email: "lchu@workday.net",
-    positionTitle: "Senior Benefits Analyst",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21014",
-    firstName: "James",
-    lastName: "Moore",
-    addressLine: "312 Oak Street  Apt. 5",
-    city: "Oakland",
-    postalCode: "94607",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1977-06-19-07:00",
-    phone: "838-1622",
-    email: "jmoore@workday.net",
-    positionTitle: "Staff Recruiter",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21011",
-    firstName: "Isabel",
-    lastName: "Arguello",
-    addressLine: "3939 The Embarcadero",
-    city: "San Francisco",
-    postalCode: "94111",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1967-04-15-08:00",
-    phone: "722-9845",
-    email: "iarguello@workday.net",
-    positionTitle: "Staff Payroll Specialist",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21013",
-    firstName: "David",
-    lastName: "Spiegel",
-    addressLine: "4255 Fourth Street",
-    city: "Santa Rosa",
-    postalCode: "95405",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1980-09-07-07:00",
-    phone: "824-1142",
-    email: "dspiegel@workday.net",
-    positionTitle: "Senior Payroll Specialist",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21015",
-    firstName: "Daniel",
-    lastName: "Betancourt",
-    addressLine: "185 Carl Street",
-    city: "San Francisco",
-    postalCode: "94117",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1982-07-22-07:00",
-    phone: "635-9002",
-    email: "dbetancourt@workday.net",
-    positionTitle: "Senior Workforce Analyst",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21016",
-    firstName: "Chad",
-    lastName: "Anderson",
-    addressLine: "200 W. Grand  Apt. 1965",
-    city: "Chicago",
-    postalCode: "60610",
-    country: "USA",
-    region: "Not presented",
-    birthDate: "1974-05-22-07:00",
-    phone: "992-4345",
-    email: "canderson@workday.net",
-    positionTitle: "Senior Benefits Analyst",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21017",
-    firstName: "Sara",
-    lastName: "Goldstein",
-    addressLine: "845 Third Avenue  Apt. 4",
-    city: "New York",
-    postalCode: "10022",
-    country: "USA",
-    region: "Not presented",
-    birthDate: "1958-03-05-08:00",
-    phone: "559-2314",
-    email: "sgoldstein@workday.net",
-    positionTitle: "Director, Accounting",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21018",
-    firstName: "Jerome",
-    lastName: "Williams",
-    addressLine: "1788 North Halsted",
-    city: "Chicago",
-    postalCode: "60610",
-    country: "USA",
-    region: "Not presented",
-    birthDate: "1978-10-14-07:00",
-    phone: "822-0712",
-    email: "jwilliams@workday.net",
-    positionTitle: "Senior Accountant",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21019",
-    firstName: "Angela",
-    lastName: "Mora",
-    addressLine: "5801 College Avenue",
-    city: "Oakland",
-    postalCode: "94618",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1967-09-20-07:00",
-    phone: "922-5201",
-    email: "amora@workday.net",
-    positionTitle: "Accounting Specialist - AR",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }, 
-  {
-    id: "21020",
-    firstName: "Andrew",
-    lastName: "Walton",
-    addressLine: "7835 Sonoma Hwy",
-    city: "Kenwood",
-    postalCode: "95452",
-    country: "USA",
-    region: "USA-CA",
-    birthDate: "1974-06-04-07:00",
-    phone: "826-1182",
-    email: "awalton@workday.net",
-    positionTitle: "Tax Accountant",
-    hireDate: "2000-01-01-08:00",
-    weeklyHours: "40"
-  }
-]]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
 		<ee:transform doc:name="Prepare SearchEmployees request" doc:id="58da9d18-6fe7-46b2-9b65-a5acd7f2d3a0" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -474,26 +145,35 @@ output application/java
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<ee:transform doc:name="Apply pagination" doc:id="477090b4-bfb2-4120-abb0-87994433fc23" >
+		<ee:transform doc:name="TODO Prepare Employees structure" doc:id="477090b4-bfb2-4120-abb0-87994433fc23" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/java
 ---
-payload map using (address = $.record.addressbookList.addressbook[0].addressbookAddress when ($.record.addressbookList != null and ((sizeOf $.record.addressbookList.addressbook) > 0)) otherwise {}){
+payload map using (address = if (($.record.addressbookList != null) and ((sizeOf($.record.addressbookList.addressbook)) > 0)) $.record.addressbookList.addressbook[0].addressbookAddress  else {})
+{
 	id: $.record.internalId,
-	firstName: $.record.firstName when ($.record.firstName != null) otherwise "",
-	lastName: $.record.lastName when ($.record.lastName != null) otherwise "",
-	(addressLine: address.addr1) when (address.addr1 != null),
-	(city: address.city) when (address.city != null),
-	(postalCode: address.'zip') when (address.'zip' != null),
-	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
-	(region: address.state) when (address.state != null),
-	(birthDate: ($.record.birthDate as :datetime)[0..9] ++ ($.record.birthDate as :datetime)[19..-1] ) when ($.record.birthDate != null),
-	(phone: $.record.phone) when ($.record.phone != null),
-	(email: $.record.email) when ($.record.email != null),
-	(positionTitle: $.record.title) when ($.record.title != null),
-	hireDate: ($.record.hireDate[0..9] ++ $.record.hireDate[19..-1]) when ($.record.hireDate != null) otherwise ""
+	firstName: if ($.record.firstName != null) $.record.firstName  else "",
+	lastName: if ($.record.lastName != null) $.record.lastName  else "",
+	(addressLine: address.addr1) if (address.addr1 != null),
+	(city: address.city) if (address.city != null),
+	(postalCode: address.'zip') if (address.'zip' != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) if (address.country != null),
+	(region: address.state) if (address.state != null),
+	(birthDate: ($.record.birthDate as DateTime)[0 to 9] ++ ($.record.birthDate as DateTime)[19 to -1] ) if ($.record.birthDate != null),
+	(phone: $.record.phone) if ($.record.phone != null),
+	(email: $.record.email) if ($.record.email != null),
+	(positionTitle: $.record.title) if ($.record.title != null),
+	hireDate: if ($.record.hireDate != null) ($.record.hireDate[0 to 9] ++ $.record.hireDate[19 to -1])  else ""
 }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="TODO Apply pagination" doc:id="a058c8ad-ef6d-4121-ae30-faaa8c9549c2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<ee:transform doc:name="Apply ordering and transform payload into JSON output structure" doc:id="f230ddcd-8844-4654-aabe-f9c49952e1d8" >
@@ -507,10 +187,10 @@ var orderByKeyMap = {
 	lastName :"lastName",
  	hireDate:"hireDate"	
 }
-function applyOrdering(result){
-  result: [] when (result is :empty) otherwise
-          ( (result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]]) when ((flowVars.queryParams.order == "asc" or flowVars.queryParams.order == null) and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
-          ( ((result orderBy $[orderByKeyMap[flowVars.queryParams.orderBy]])[-1..0]) when (flowVars.queryParams.order == "desc" and orderByKeyMap[flowVars.queryParams.orderBy] != null) otherwise
+fun applyOrdering(result)={
+  result: if (isEmpty(result)) [] else
+          ( if ((attributes.queryParams.order == "asc" or attributes.queryParams.order == null) and orderByKeyMap[attributes.queryParams.orderBy] != null) (result orderBy ($[orderByKeyMap[attributes.queryParams.orderBy]]))  else
+          ( if (attributes.queryParams.order == "desc" and orderByKeyMap[attributes.queryParams.orderBy] != null) ((result orderBy ($[orderByKeyMap[attributes.queryParams.orderBy]]))[-1 to 0])  else
           ( result)))
 }
 ---
@@ -566,21 +246,21 @@ output application/java
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-using (address = payload.addressbookList.addressbook.addressbookAddress[0] when (payload.addressbookList != null and ((sizeOf payload.addressbookList) > 0)) otherwise {})
+using (address = if (payload.addressbookList != null and ((sizeOf (payload.addressbookList)) > 0)) payload.addressbookList.addressbook.addressbookAddress[0]  else {})
 {
 	id: payload.internalId,
-	firstName: payload.firstName when (payload.firstName != null) otherwise "",
-	lastName: payload.lastName when (payload.lastName != null) otherwise "",
-	(addressLine: address.addr1) when (address.addr1 != null),
-	(city: address.city) when (address.city != null),
-	(postalCode: address.zip) when (address.zip != null),
-	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) when (address.country != null),
-	(region: address.state) when (address.state != null),
-	(birthDate: (payload.birthDate as :datetime)[0..9] ++ (payload.birthDate as :datetime)[19..-1] ) when (payload.birthDate != null),
-	(phone: payload.phone) when (payload.phone != null),
-	(email: payload.email) when (payload.email != null),
-	(positionTitle: payload.title) when (payload.title != null),
-	hireDate: (payload.hireDate[0..9] ++ payload.hireDate[19..-1]) when (payload.hireDate != null) otherwise ""
+	firstName: if (payload.firstName != null) payload.firstName  else "",
+	lastName: if (payload.lastName != null) payload.lastName  else "",
+	(addressLine: address.addr1) if (address.addr1 != null),
+	(city: address.city) if (address.city != null),
+	(postalCode: address.zip) if (address.zip != null),
+	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) if (address.country != null),
+	(region: address.state) if (address.state != null),
+	(birthDate: (payload.birthDate as DateTime)[0 to 9] ++ (payload.birthDate as DateTime)[19..-1] ) if (payload.birthDate != null),
+	(phone: payload.phone) if (payload.phone != null),
+	(email: payload.email) if (payload.email != null),
+	(positionTitle: payload.title) if (payload.title != null),
+	hireDate: if (payload.hireDate != null) (payload.hireDate[0 to 9] ++ payload.hireDate[19 to -1])  else ""
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -616,13 +296,19 @@ output application/java
 	basic: {
 		internalIdNumber: {
 			operator: "EQUAL_TO",
-			searchValue: vars.id
+			searchValue: attributes.uriParams
 		}
 	}
 } as Object {
 	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
 }]]></ee:set-payload>
 			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myInput" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="MOCK Netsuite search" doc:id="7db31d75-7057-4038-8cc4-bc6ef9ba70b4" >
 			<ee:message >
@@ -642,42 +328,42 @@ output application/json
 output application/java
 ---
 {
-	internalId: flowVars.id,
+	internalId: attributes.uriParams,
 	(addressbookList: {
 		addressbook: [{
 			addressbookAddress: {
-				(addr1: flowVars.input.addressLine) when (flowVars.input.addressLine?),
-				(city: flowVars.input.city) when (flowVars.input.city?),
-				(country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country)) when (flowVars.input.country?),
-				(state: flowVars.input.region) when (flowVars.input.region?),
-				(zip: flowVars.input.postalCode) when (flowVars.input.postalCode?)
+				(addr1: vars.myInput.addressLine) if (vars.myInput.addressLine?),
+				(city: vars.myInput.city) if (vars.myInput.city?),
+				(country: lookup("lookUpNetsuiteCountryEnumFlow", vars.myInput.country)) if (vars.myInput.country?),
+				(state: vars.myInput.region) if (vars.myInput.region?),
+				(zip: vars.myInput.postalCode) if (vars.myInput.postalCode?)
 			}
 		}]
-	})when (flowVars.input.addressLine? or flowVars.input.city? or flowVars.input.country? or flowVars.input.region? or flowVars.input.postalCode?),
-	(birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime) when (flowVars.input.birthDate?),
+	})if (vars.myInput.addressLine? or vars.myInput.city? or vars.myInput.country? or vars.myInput.region? or vars.myInput.postalCode?),
+	(birthDate: (vars.myInput.birthDate[0 to 9] ++ |00:00| as Time ++  vars.myInput.birthDate[10 to -1] as TimeZone) as DateTime) if (vars.myInput.birthDate?),
 	(earningList: {
 		employeeEarning: [{
-			(defaultHours: flowVars.input.weeklyHours) when (flowVars.input.weeklyHours?),
-			(payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency) when (flowVars.input.basePay? and flowVars.input.currency?)
+			(defaultHours: vars.myInput.weeklyHours) if (vars.myInput.weeklyHours?),
+			(payRate: vars.myInput.basePay ++ " " ++ vars.myInput.currency) if (vars.myInput.basePay? and vars.myInput.currency?)
 		}]
-	}) when (flowVars.input.weeklyHours? or (flowVars.input.basePay? and flowVars.input.currency?)),
-	(email: flowVars.input.email) when (flowVars.input.email?),
-	(firstName: flowVars.input.firstName) when (flowVars.input.firstName?),
-	(hireDate: flowVars.input.hireDate) when (flowVars.input.hireDate?),
-	(lastName: flowVars.input.lastName) when (flowVars.input.lastName?),
-	(phone: flowVars.input.phone) when (flowVars.input.phone?),
+	}) if (vars.myInput.weeklyHours? or (vars.myInput.basePay? and vars.myInput.currency?)),
+	(email: vars.myInput.email) if (vars.myInput.email?),
+	(firstName: vars.myInput.firstName) if (vars.myInput.firstName?),
+	(hireDate: vars.myInput.hireDate) if (vars.myInput.hireDate?),
+	(lastName: vars.myInput.lastName) if (vars.myInput.lastName?),
+	(phone: vars.myInput.phone) if (vars.myInput.phone?),
 	(ratesList: {
 		employeeRates: [{
 			(entityCurrency: {
-				name: flowVars.input.currency
-			}) when (flowVars.input.currency?),
-			(rate: flowVars.input.basePay) when (flowVars.input.basePay?)
+				name: vars.myInput.currency
+			}) if (vars.myInput.currency?),
+			(rate: vars.myInput.basePay) if (vars.myInput.basePay?)
 		}]
-	}) when (flowVars.input.currency? or flowVars.input.basePay?),
+	}) if (vars.myInput.currency? or vars.myInput.basePay?),
 	subsidiary: {
 		internalId: p("nets.customer.subsidiary.internalId")
 	},
-	(title: flowVars.input.positionTitle) when (flowVars.input.positionTitle?)
+	(title: vars.myInput.positionTitle) if (vars.myInput.positionTitle?)
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -722,13 +408,19 @@ output application/java
 	basic: {
 		internalIdNumber: {
 			operator: "EQUAL_TO",
-			searchValue: vars.id
+			searchValue: attributes.uriParams
 		}
 	}
 } as Object {
 	class : "org.mule.module.netsuite.extension.api.EmployeeSearch"
 }]]></ee:set-payload>
 			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="myInput" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+			</ee:variables>
 		</ee:transform>
 		<ee:transform doc:name="MOCK Netsuite search" doc:id="93448ad8-2ca6-43a4-ac04-ea4c5940ac04" >
 			<ee:message >
@@ -748,42 +440,42 @@ output application/json
 output application/java
 ---
 {
-	internalId: flowVars.id,
+	internalId: vars.myInput,
 	(addressbookList: {
 		addressbook: [{
 			addressbookAddress: {
-				(addr1: flowVars.input.addressLine) when (flowVars.input.addressLine?),
-				(city: flowVars.input.city) when (flowVars.input.city?),
-				(country: lookup("lookUpNetsuiteCountryEnumFlow", flowVars.input.country)) when (flowVars.input.country?),
-				(state: flowVars.input.region) when (flowVars.input.region?),
-				(zip: flowVars.input.postalCode) when (flowVars.input.postalCode?)
+				(addr1: vars.myInput.addressLine) if (vars.myInput.addressLine?),
+				(city: vars.myInput.city) if (vars.myInput.city?),
+				(country: lookup("lookUpNetsuiteCountryEnumFlow", vars.myInput.country)) if (vars.myInput.country?),
+				(state: vars.myInput.region) if (vars.myInput.region?),
+				(zip: vars.myInput.postalCode) if (vars.myInput.postalCode?)
 			}
 		}]
-	})when (flowVars.input.addressLine? or flowVars.input.city? or flowVars.input.country? or flowVars.input.region? or flowVars.input.postalCode?),
-	(birthDate: (flowVars.input.birthDate[0..9] ++ |00:00| as :time ++  flowVars.input.birthDate[10..-1] as :timezone) as :datetime) when (flowVars.input.birthDate?),
+	})if (vars.myInput.addressLine? or vars.myInput.city? or vars.myInput.country? or vars.myInput.region? or vars.myInput.postalCode?),
+	(birthDate: (vars.myInput.birthDate[0 to 9] ++ |00:00| as Time ++  vars.myInput.birthDate[10 to -1] as TimeZone) as DateTime) if (vars.myInput.birthDate?),
 	(earningList: {
 		employeeEarning: [{
-			(defaultHours: flowVars.input.weeklyHours) when (flowVars.input.weeklyHours?),
-			(payRate: flowVars.input.basePay ++ " " ++ flowVars.input.currency) when (flowVars.input.basePay? and flowVars.input.currency?)
+			(defaultHours: vars.myInput.weeklyHours) if (vars.myInput.weeklyHours?),
+			(payRate: vars.myInput.basePay ++ " " ++ vars.myInput.currency) if (vars.myInput.basePay? and vars.myInput.currency?)
 		}]
-	}) when (flowVars.input.weeklyHours? or (flowVars.input.basePay? and flowVars.input.currency?)),
-	(email: flowVars.input.email) when (flowVars.input.email?),
-	(firstName: flowVars.input.firstName) when (flowVars.input.firstName?),
-	(hireDate: flowVars.input.hireDate) when (flowVars.input.hireDate?),
-	(lastName: flowVars.input.lastName) when (flowVars.input.lastName?),
-	(phone: flowVars.input.phone) when (flowVars.input.phone?),
+	}) if (vars.myInput.weeklyHours? or (vars.myInput.basePay? and vars.myInput.currency?)),
+	(email: vars.myInput.email) if (vars.myInput.email?),
+	(firstName: vars.myInput.firstName) if (vars.myInput.firstName?),
+	(hireDate: vars.myInput.hireDate) if (vars.myInput.hireDate?),
+	(lastName: vars.myInput.lastName) if (vars.myInput.lastName?),
+	(phone: vars.myInput.phone) if (vars.myInput.phone?),
 	(ratesList: {
 		employeeRates: [{
 			(entityCurrency: {
-				name: flowVars.input.currency
-			}) when (flowVars.input.currency?),
-			(rate: flowVars.input.basePay) when (flowVars.input.basePay?)
+				name: vars.myInput.currency
+			}) if (vars.myInput.currency?),
+			(rate: vars.myInput.basePay) if (vars.myInput.basePay?)
 		}]
-	}) when (flowVars.input.currency? or flowVars.input.basePay?),
+	}) if (vars.myInput.currency? or vars.myInput.basePay?),
 	subsidiary: {
 		internalId: p("nets.customer.subsidiary.internalId")
 	},
-	(title: flowVars.input.positionTitle) when (flowVars.input.positionTitle?)
+	(title: vars.myInput.positionTitle) if (vars.myInput.positionTitle?)
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -817,5 +509,31 @@ output application/java
 				</ee:transform>
 			</otherwise>
 		</choice>
+	</flow>
+	<flow name="lookUpNetsuiteCountryEnumFlow" doc:id="695cdfd5-f023-46e2-bd85-374ac971d223" >
+		<ee:transform doc:name="Get Country in Netsuite" doc:id="eca48733-affb-4247-8600-4745d8c92aed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+using (country = upper (payload))
+	( if (country == "US" or country == "USA") "UNITED_STATES" else
+	( if (country == "UK" or country == "GBR") "UNITED_KINGDOM" else payload))
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="lookUpRealCountryNamefromNetsuiteEnumFlow" doc:id="b7ea2107-2b26-4661-8fab-62c29542a201" >
+		<ee:transform doc:name="Get Country in Netsuite" doc:id="ad1cc29b-d2b6-4391-8cf2-abfa20fac537" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+using (country = upper (payload))
+	(if (country == "UNITED_STATES") "USA"  else
+	(if (country == "UNITED_KINGDOM") "UK"  else payload))
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 	</flow>
 </mule>
