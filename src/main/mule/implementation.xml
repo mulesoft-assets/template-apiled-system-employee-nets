@@ -76,7 +76,7 @@ output application/java
 			}
 		}]
 	},
-	birthDate: (vars.myInput.birthDate[0 to 9] ++ |00:00| as Time ++  vars.myInput.birthDate[10 to -1] as TimeZone) as DateTime,
+	birthDate: (vars.myInput.birthDate[0 to 9]) as Date,
 	earningList: {
 		employeeEarning: [{
 			defaultHours: vars.myInput.weeklyHours,
