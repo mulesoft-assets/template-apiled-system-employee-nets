@@ -12,6 +12,10 @@
     <packaging>mule-application</packaging>
 
     <name>template-apiled-system-employee-nets</name>
+    
+    <properties>
+    	<json.module.version>2.0.0</json.module.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -28,7 +32,7 @@
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-json-module</artifactId>
             <classifier>mule-plugin</classifier>
-             <version>2.0.0</version>
+            <version>${json.module.version}</version>
         </dependency>
     	<dependency>
             <groupId>com.mulesoft.connectors</groupId>
