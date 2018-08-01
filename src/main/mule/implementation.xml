@@ -7,7 +7,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
 	<flow name="postEmployeesFlow" doc:id="1acc4e5f-fc6b-4d5f-888f-f9855abcb7ab" >
-		<logger level="INFO" doc:name="Logger" doc:id="0c597a7c-8630-4cb5-adbd-0e4ab1978bc4" message="employee=#[payload]"/>
 		<json:validate-schema doc:name="Validate schema" doc:id="419b6ba5-632c-4c7f-8b06-cb0e6154752d" schema="api/examples/post_employees_example.json"/>
 		<ee:transform doc:name="Prepare SearchEmployees request" doc:id="bb0d5d62-fea3-4ae8-a0e0-82cd70a33ca1" >
 			<ee:message >
@@ -76,7 +75,7 @@ output application/java
 			}
 		}]
 	},
-	birthDate: (vars.myInput.birthDate[0 to 9]) as Date,
+	birthDate: (vars.myInput.birthDate[0 to 9] ++ |00:00| as Time) as LocalDateTime,
 	earningList: {
 		employeeEarning: [{
 			defaultHours: vars.myInput.weeklyHours,
@@ -85,7 +84,7 @@ output application/java
 	},
 	email: vars.myInput.email,
 	firstName: vars.myInput.firstName,
-	hireDate: if (vars.myInput.hireDate?) vars.myInput.hireDate  else now() as Date,
+	hireDate: if (vars.myInput.hireDate?) vars.myInput.hireDate  else now() as LocalDateTime,
 	lastName: vars.myInput.lastName,
 	phone: vars.myInput.phone,
 	ratesList: {
@@ -162,31 +161,30 @@ payload map ({
 			</ee:message>
 		</ee:transform>
 		<netsuite:get-list doc:name="Get list" doc:id="1516b67d-134c-4974-8c9a-eb91839d44e1" config-ref="NetSuite_Config"/>
-		<ee:transform doc:name="Prepare Employees structure" doc:id="477090b4-bfb2-4120-abb0-87994433fc23" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<ee:transform doc:name="Prepare Employees structure" doc:id="477090b4-bfb2-4120-abb0-87994433fc23">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
-payload map using (address = if (($.record.addressbookList != null) and ((sizeOf($.record.addressbookList.addressbook)) > 0)) $.record.addressbookList.addressbook[0].addressbookAddress  else {})
+payload map using (address = if (($.addressbookList != null) and ((sizeOf($.addressbookList.addressbook)) > 0)) $.addressbookList.addressbook[0].addressbookAddress  else {})
 {
-	id: $.record.internalId,
-	firstName: if ($.record.firstName != null) $.record.firstName  else "",
-	lastName: if ($.record.lastName != null) $.record.lastName  else "",
+	id: $.internalId,
+	firstName: if ($.firstName != null) $.firstName  else "",
+	lastName: if ($.lastName != null) $.lastName  else "",
 	(addressLine: address.addr1) if (address.addr1 != null),
 	(city: address.city) if (address.city != null),
 	(postalCode: address.'zip') if (address.'zip' != null),
 	(country: lookup("lookUpRealCountryNamefromNetsuiteEnumFlow",address.country)) if (address.country != null),
 	(region: address.state) if (address.state != null),
-	(birthDate: ($.record.birthDate as DateTime)[0 to 9] ++ ($.record.birthDate as DateTime)[19 to -1] ) if ($.record.birthDate != null),
-	(phone: $.record.phone) if ($.record.phone != null),
-	(email: $.record.email) if ($.record.email != null),
-	(positionTitle: $.record.title) if ($.record.title != null),
-	hireDate: if ($.record.hireDate != null) ($.record.hireDate[0 to 9] ++ $.record.hireDate[19 to -1])  else ""
+	(birthDate: ($.birthDate as DateTime)[0 to 9]) if ($.birthDate != null),
+	(phone: $.phone) if ($.phone != null),
+	(email: $.email) if ($.email != null),
+	(positionTitle: $.title) if ($.title != null),
+	hireDate: if ($.hireDate != null) ($.hireDate[0 to 9])  else ""
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="TODO Apply pagination" doc:id="8b0368bf-11f9-473c-9285-b589a2b76534" message="Pagination"/>
-		<ee:transform doc:name="Apply ordering and transform payload into JSON output structure" doc:id="f230ddcd-8844-4654-aabe-f9c49952e1d8" >
+		<ee:transform doc:name="Sort and prepare JSON for response" doc:id="4e00fdd1-4c69-4f5a-b949-89ccf1eba54e" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -197,16 +195,17 @@ var orderByKeyMap = {
 	lastName :"lastName",
  	hireDate:"hireDate"	
 }
-fun applyOrdering(result)={
-  result: if (isEmpty(result)) [] else
-          ( if ((attributes.queryParams.order == "asc" or attributes.queryParams.order == null) and orderByKeyMap[attributes.queryParams.orderBy] != null) (result orderBy ($[orderByKeyMap[attributes.queryParams.orderBy]]))  else
-          ( if (attributes.queryParams.order == "desc" and orderByKeyMap[attributes.queryParams.orderBy] != null) ((result orderBy ($[orderByKeyMap[attributes.queryParams.orderBy]]))[-1 to 0])  else
-          ( result)))
-}
+fun applyOrdering(result)=(
+  result: if(isEmpty(result)) [] else
+  (
+  	result
+  )
+)
 ---
 applyOrdering(payload).result]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+
 	</flow>
 	<flow name="getEmployeesById" doc:id="29cf75c4-848b-4f0a-a9c8-c6052c36b9d3" >
 		<ee:transform doc:name="Prepare EmployeeSearch request" doc:id="2ffb078a-7d3a-4f5e-9cce-760546c628a4" >

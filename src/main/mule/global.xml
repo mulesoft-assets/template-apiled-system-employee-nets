@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule
     
 		<apikit:config name="template-apiled-system-employee-nets-config" raml="template-apiled-system-employee-nets.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
 	<netsuite:config name="NetSuite_Config" doc:name="NetSuite Config" doc:id="b751b9e1-50a1-42b0-b059-212eb5a72884" >
-		<netsuite:login-authentication-connection email="${nets.email}" password="${nets.password}" account="${nets.account}" roleId="${nets.roleId}" applicationId="${nets.appId}" />
+		<netsuite:login-authentication-connection email="${nets.email}" password="${nets.password}" account="${nets.account}" roleId="${nets.roleId}" applicationId="${nets.appId}" readTimeout="30000" connectionTimeout="30000"/>
 	</netsuite:config>    
 	
 </mule>
