@@ -74,10 +74,8 @@ First thing to know if you are a newcomer to Mule is where to get the tools.
 ### Importing an Anypoint Template into Studio
 Mule Studio offers several ways to import a project into the workspace, for instance: 
 
-+ Anypoint Studio generated Deployable Archive (.zip)
-+ Anypoint Studio Project from External Location
-+ Maven-based Mule Project from pom.xml
-+ Mule ESB Configuration XML from External Location
++ Anypoint Studio Project from File System
++ Packaged mule application (.jar)
 
 You can find a detailed description on how to do so in this [Documentation Page](http://www.mulesoft.org/documentation/display/current/Importing+and+Exporting+in+Studio).
 
@@ -118,14 +116,8 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + nets.password `secret`
 + nets.account `TSTDRV2123985`
 + nets.roleId `3`
-+ nets.applicationId `8BDDC777-E81C-466D-AB9E-1EF2504927B2`
++ nets.appId `8BDDC777-E81C-466D-AB9E-1EF2504927B2`
 + nets.customer.subsidiary.internalId `1`
-
-**API configuration**
-
-+ api.domain `your-nets-api.cloudhub.io`
-+ api.basePath `/api`
-
 
 # Customize It!<a name="customizeit"/>
 This brief guide intends to give a high level idea of how this Anypoint Template is built and how you can change it according to your needs.
@@ -134,7 +126,9 @@ Of course more files will be found such as Test Classes and [Mule Application Fi
 
 Here is a list of the main XML files you'll find in this application:
 
-* [system-api-employee-nets.xml](#systemapinets)
+* [process-api.xml](#systemapinets)
+* [implementation.xml](#implementationnets)
+* [global.xml](#globalnets)
 
 ## system-api-employee-nets.xml<a name="systemapinets"/>
 
