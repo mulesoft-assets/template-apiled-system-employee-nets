@@ -7,6 +7,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
 	<flow name="postEmployeesFlow" doc:id="1acc4e5f-fc6b-4d5f-888f-f9855abcb7ab" >
+		<set-variable value='#["http://" ++ attributes.headers.host ++ attributes.requestPath ++ "/"]' doc:name="Set getLocation" doc:id="68398717-3ec7-48c9-9a88-89f3cc1ce427" variableName="getLocation"/>
 		<json:validate-schema doc:name="Validate schema" doc:id="419b6ba5-632c-4c7f-8b06-cb0e6154752d" schema="api/examples/post_employees_example.json"/>
 		<ee:transform doc:name="Prepare SearchEmployees request" doc:id="bb0d5d62-fea3-4ae8-a0e0-82cd70a33ca1" >
 			<ee:message >
@@ -120,7 +121,7 @@ output application/java
 						<ee:set-variable variableName="outboundHeaders"><![CDATA[%dw 2.0
 output application/java
 ---
-{"Location":"http://" ++ p("api.domain") ++ ":" ++ p("http.port") ++ p("api.basePath") ++ "/employees/" ++ payload.internalId}]]></ee:set-variable>
+{"Location": vars.getLocation ++ payload.internalId}]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
 			</otherwise>
