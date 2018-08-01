@@ -35,7 +35,7 @@ output application/java
 payload]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<netsuite:search key="EMPLOYEE" pageSize="20" doc:name="Search" doc:id="782c26e3-ef85-43b7-a4e3-730d14b9270c" config-ref="NetSuite_Config">
+		<netsuite:search key="EMPLOYEE" pageSize="20" doc:name="Search employees" doc:id="782c26e3-ef85-43b7-a4e3-730d14b9270c" config-ref="NetSuite_Config">
 			<ee:repeatable-file-store-iterable />
 		</netsuite:search>
 		<choice doc:name="Doesn't Employee with the same firstName and lastName exist?" doc:id="e6e60291-b352-45eb-9a7d-2d84de7faf77" >
@@ -144,7 +144,7 @@ output application/java
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<netsuite:search pageSize="20" doc:name="Search" doc:id="215bd682-33ef-4970-bc23-62e5b00573e5" config-ref="NetSuite_Config" key="EMPLOYEE">
+		<netsuite:search pageSize="20" doc:name="Search employees" doc:id="215bd682-33ef-4970-bc23-62e5b00573e5" config-ref="NetSuite_Config" key="EMPLOYEE">
 			<ee:repeatable-file-store-iterable />
 		</netsuite:search>
 		<ee:transform doc:name="Prepare GetList of Employees request" doc:id="95b2bee9-df5b-4dbb-8154-75e6758bb235" >
@@ -160,7 +160,7 @@ payload map ({
 })]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<netsuite:get-list doc:name="Get list" doc:id="1516b67d-134c-4974-8c9a-eb91839d44e1" config-ref="NetSuite_Config"/>
+		<netsuite:get-list doc:name="Get list of employees" doc:id="1516b67d-134c-4974-8c9a-eb91839d44e1" config-ref="NetSuite_Config"/>
 		<ee:transform doc:name="Prepare Employees structure" doc:id="477090b4-bfb2-4120-abb0-87994433fc23">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
