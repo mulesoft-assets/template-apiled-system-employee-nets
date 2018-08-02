@@ -2,7 +2,7 @@
   "configs": [
     "implementation.xml",
     "global.xml",
-    "process-api.xml"
+    "system-api.xml"
   ],
   "secureProperties": [],
   "redeploymentEnabled": true,

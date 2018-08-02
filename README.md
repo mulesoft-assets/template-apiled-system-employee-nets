@@ -126,11 +126,11 @@ Of course more files will be found such as Test Classes and [Mule Application Fi
 
 Here is a list of the main XML files you'll find in this application:
 
-* [process-api.xml](#systemapinets)
+* [system-api.xml](#systemapinets)
 * [implementation.xml](#implementationnets)
 * [global.xml](#globalnets)
 
-## process-api.xml<a name="systemapinets"/>
+## system-api.xml<a name="systemapinets"/>
 
 A functional aspect of this Anypoint Template implemented in this XML is to create or update objects in the destination system for a represented use case. You can customize and extend the logic of this Anypoint Template in this XML to more specifically meet your needs.
 
