@@ -50,7 +50,7 @@ Look at the included self-descriptive RAML definition and the corresponding flow
 # Considerations <a name="considerations"/>
 
 To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations, that must be made in order for all to run smoothly.
-**Failling to do so could lead to unexpected behavior of the template.**
+**Failing to do so could lead to unexpected behavior of the template.**
 
 ## NetSuite Considerations <a name="netsuiteconsiderations"/>
 Customer must be assigned to subsidiary. In this template, this is done statically and you must configure the property file with subsidiary *internalId* that is already in the system. You can find out this number by entering 'subsidiaries' 
@@ -130,11 +130,11 @@ Here is a list of the main XML files you'll find in this application:
 * [implementation.xml](#implementationnets)
 * [global.xml](#globalnets)
 
-## system-api-employee-nets.xml<a name="systemapinets"/>
+## process-api.xml<a name="systemapinets"/>
 
 A functional aspect of this Anypoint Template implemented in this XML is to create or update objects in the destination system for a represented use case. You can customize and extend the logic of this Anypoint Template in this XML to more specifically meet your needs.
 
-Configuration for Connectors and [Properties Place Holders](http://www.mulesoft.org/documentation/display/current/Configuring+Properties) are also set in this file. **Even though you can change the configuration here, all parameters that can be modified here are in properties file, and this is the recommended place to do it so.** Of course if you want to do core changes to the logic you will probably need to modify this file.
+Configuration for Connectors and [Configuring Properties](http://www.mulesoft.org/documentation/display/current/Configuring+Properties) are also set in this file. **Even though you can change the configuration here, all parameters that can be modified here are in properties file, and this is the recommended place to do it so.** Of course if you want to do core changes to the logic you will probably need to modify this file.
 
 In the visual editor they can be found on the *Global Element* tab.
 
