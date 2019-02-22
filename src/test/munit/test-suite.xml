@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 		doc:name="HTTP Request configuration" doc:id="57e5465e-b065-4258-950e-4f2200282830"
 		basePath="${api.basePath}">
 		<http:request-connection host="${api.domain}"
-			port="${http.port}" connectionIdleTimeout="60000" />
+			port="${http.port}"/>
 	</http:request-config>
 	<munit:before-test name="test-suiteBefore_Test"
 		description="Before tests actions" doc:id="e2221884-746d-4ca5-8ada-77bbd819349f">
@@ -59,7 +59,6 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 				value="post:\employees:application\json:template-apiled-system-employee-nets-config" />
 			<munit:enable-flow-source value="postEmployeesFlow" />
 			<munit:enable-flow-source value="lookUpNetsuiteCountryEnumFlow" />
-			<munit:enable-flow-source value="lookUpRealCountryNamefromNetsuiteEnumFlow" />
 			<munit:enable-flow-source value="deleteEmployeesById" />
 			<munit:enable-flow-source
 				value="delete:\employees\(id):template-apiled-system-employee-nets-config" />
@@ -85,7 +84,6 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 	<munit:test name="GET_employees_testFlow" description="MUnit Test" doc:id="d16282b9-daea-4259-b744-b3f60f03cb09" >
 		<munit:enable-flow-sources>
 			<munit:enable-flow-source value="template-apiled-system-employee-nets-main" />
-			<munit:enable-flow-source value="lookUpNetsuiteCountryEnumFlow" />
 			<munit:enable-flow-source value="lookUpRealCountryNamefromNetsuiteEnumFlow" />
 			<munit:enable-flow-source value="get:\employees:template-apiled-system-employee-nets-config" />
 			<munit:enable-flow-source value="getEmployeesFlow" />
@@ -103,7 +101,6 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 	<munit:test name="PATCH_employeesById_testFlow" description="MUnit Test" doc:id="0305ea6b-b52b-49cb-949c-19fc5cd8576f" >
 		<munit:enable-flow-sources>
 			<munit:enable-flow-source value="template-apiled-system-employee-nets-main" />
-			<munit:enable-flow-source value="lookUpRealCountryNamefromNetsuiteEnumFlow" />
 			<munit:enable-flow-source value="lookUpNetsuiteCountryEnumFlow" />
 			<munit:enable-flow-source value="post:\employees:application\json:template-apiled-system-employee-nets-config" />
 			<munit:enable-flow-source value="postEmployeesFlow" />
