@@ -51,7 +51,7 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 			</ee:variables>
 		</ee:transform>
 	</munit:before-test>
-	<munit:test name="POST_employees_testFlow" description="MUnit Test"
+	<munit:test name="POST_DELETE_employees_testFlow" description="MUnit Test"
 		doc:id="f45b1833-c3ee-42be-b254-aed39eb0fd43">
 		<munit:enable-flow-sources>
 			<munit:enable-flow-source value="template-apiled-system-employee-nets-main" />
@@ -79,6 +79,7 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 			<munit-tools:assert-that doc:name="Assert that POST status code is 201"
 	doc:id="111f9881-0579-4cc8-ad4f-8ecf11f8a9ee" expression="#[vars.POSTemployeesRetVal.statusCode]"
 	is="#[MunitTools::equalTo(201)]" message="Status code should by 201" />
+			<munit-tools:assert-that doc:name="Assert that DELETE status code is 200" doc:id="97f5be7d-fcba-4f72-b493-95a01e0097ac" expression="#[vars.DELETEemployeesByIdRetVal.statusCode]" is="#[MunitTools::equalTo(200)]" message="Status code should by 200" />
 		</munit:validation>
 	</munit:test>
 	<munit:test name="GET_employees_testFlow" description="MUnit Test" doc:id="d16282b9-daea-4259-b744-b3f60f03cb09" >
@@ -99,7 +100,7 @@ var uniqueId = "test_" ++ uuid()[0 to 7]
 			<munit-tools:assert-that doc:name="Assert that GET status code is 200" doc:id="e560cf1c-2db4-4637-97e2-b7e6275f3a65" expression="#[vars.GETemployeesRetVal.statusCode]" is="#[MunitTools::equalTo(200)]" message="Status code should by 200" />
 		</munit:validation>
 	</munit:test>
-	<munit:test name="PATCH_DELETE_employeesById_testFlow" description="MUnit Test" doc:id="0305ea6b-b52b-49cb-949c-19fc5cd8576f" >
+	<munit:test name="PATCH_employeesById_testFlow" description="MUnit Test" doc:id="0305ea6b-b52b-49cb-949c-19fc5cd8576f" >
 		<munit:enable-flow-sources>
 			<munit:enable-flow-source value="template-apiled-system-employee-nets-main" />
 			<munit:enable-flow-source value="lookUpRealCountryNamefromNetsuiteEnumFlow" />
@@ -140,7 +141,6 @@ output application/json
 		<munit:validation >
 			<munit-tools:assert-that doc:name="Assert that PATCH status code is 200" doc:id="f15c51e0-8add-4380-a08a-b3cb1e44b100" expression="#[vars.PATCHemployeesByIdRetVal.statusCode]" is="#[MunitTools::equalTo(200)]" message="Status code should by 200" />
 			<munit-tools:assert-that doc:name="Assert that position title has changed" doc:id="49b854d6-9c26-4b63-8e14-f424bb63dfc1" expression="#[vars.PATCHemployeesByIdRetVal.payload.positionTitle]" is="#[MunitTools::not(MunitTools::equalTo(vars.testData.positionTitle))]" message="Position title shoukd change"/>
-			<munit-tools:assert-that doc:name="Assert that DELETE status code is 200" doc:id="97f5be7d-fcba-4f72-b493-95a01e0097ac" expression="#[vars.DELETEemployeesByIdRetVal.statusCode]" is="#[MunitTools::equalTo(200)]" message="Status code should by 200" />
 		</munit:validation>
 	</munit:test>
 	<munit:test name="GET_employeesById_testFlow" description="MUnit Test" doc:id="b98ce4e3-1aac-4c22-a985-3985a19c2276" >	
