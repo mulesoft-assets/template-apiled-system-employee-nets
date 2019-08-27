@@ -22,10 +22,10 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-This Anypoint template serves as a foundation for API Led Connectivity approach of running an enterprise.
+This Anypoint template serves as a foundation for API Led Connectivity approach of running an enterprise environment.
 The template is a System API to underlying NetSuite system.
 
-This template is a REST API implemented using APIkit and RAML definition. The basic CRUD operations are implemented for Employee object. The API uses JSON as an exchange format. Included are example requests and responses.
+This template is a REST API implemented using APIkit and RAML definition. The basic CRUD operations are implemented for Employee object. The API uses JSON as exchange format. Included are example requests and responses.
 
 Below are the endpoints that are implemented.
 
@@ -81,12 +81,12 @@ You can find a detailed description on how to do so in this [Documentation Page]
 
 
 ### Running on Studio <a name="runonstudio"/>
-Once you have imported you template into Anypoint Studio you need to follow these steps to run it:
+Once you have imported the template into Anypoint Studio you need to follow these steps to run it:
 
 + Locate the properties file `mule.dev.properties`, in src/main/resources
 + Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
-+ Once that is done, right click on you template project folder 
-+ Hover you mouse over `"Run as"`
++ Once that is done, right click on your template project folder 
++ Hover your mouse over `"Run as"`
 + Click on  `"Mule Application"`
 
 
@@ -120,11 +120,11 @@ In order to use this Mule template you need to configure properties (Credentials
 + nets.customer.subsidiary.internalId `1`
 
 # Customize It!<a name="customizeit"/>
-This brief guide intends to give a high level idea of how this template is built and how you can change it according to your needs.
+This brief guide intends to give an overview of how this template is built and how you can change it according to your needs.
 As mule applications are based on XML files, this page will be organized by describing all the XML that conform the template.
 Of course more files will be found such as Test Classes and [Mule Application Files](http://www.mulesoft.org/documentation/display/current/Application+Format), but to keep it simple we will focus on the XMLs.
 
-Here is a list of the main XML files you'll find in this application:
+Here is a list of the main XML files you will find in this application:
 
 * [system-api.xml](#systemapinets)
 * [implementation.xml](#implementationnets)
@@ -134,7 +134,7 @@ Here is a list of the main XML files you'll find in this application:
 
 A functional aspect of this template implemented in this XML is to create or update objects in the destination system for a represented use case. You can customize and extend the logic of this template in this XML to more specifically meet your needs.
 
-Configuration for Connectors and [Configuring Properties](http://www.mulesoft.org/documentation/display/current/Configuring+Properties) are also set in this file. **Even though you can change the configuration here, all parameters that can be modified here are in properties file, and this is the recommended place to do it so.** Of course if you want to do core changes to the logic you will probably need to modify this file.
+Configuration for Connectors and [Configuring Properties](http://www.mulesoft.org/documentation/display/current/Configuring+Properties) are also set in this file. **Even though you can change the configuration here, all parameters that can be modified here are in some properties file, and this is the recommended place to do it so.** Of course if you want to do core changes to the logic you will probably need to modify this file.
 
 In the visual editor they can be found on the *Global Element* tab.
 
