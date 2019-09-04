@@ -38,7 +38,7 @@ Inserts new Employee to NetSuite
 ### GET /employees/{id}
 Retrieves an Employee based on the given NetSuite native identifier.
 
-### PATCH /employees/{id}
+### PUT /employees/{id}
 Updates an Employee with the data in the HTTP request. All fields are overwritten.
 
 ### DELETE /employees/{id}
