@@ -13,7 +13,7 @@
     <name>template-apiled-system-employee-nets</name>
 
     <properties>
-        <json.module.version>2.0.0</json.module.version>
+        <json.module.version>2.1.3</json.module.version>
     </properties>
 
     <build>
